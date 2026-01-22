@@ -26,7 +26,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     vin: vehicle?.vin || '',
     address: vehicle?.address || '',
     expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
-    title: vehicle?.title || '',
+    name: vehicle?.name || '',
     fuelLevel: vehicle?.fuelLevel || 50,
     engineStatus: vehicle?.engineStatus || false,
     location: vehicle?.location || '',
@@ -53,16 +53,16 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
         lastUpdate: new Date().toISOString(),
       });
       onOpenChange(false);
-      setFormData({
-        vin: '',
-        address: '',
-        expiryTime: '',
-        title: '',
-        fuelLevel: 50,
-        engineStatus: false,
-        location: '',
-        image: '',
-      });
+      // setFormData({
+      //   vin: '',
+      //   address: '',
+      //   expiryTime: '',
+      //   name: '',
+      //   fuelLevel: 50,
+      //   engineStatus: false,
+      //   location: '',
+      //   image: '',
+      // });
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-full sm:max-w-md md:max-w-lg px-4 sm:px-6">
         <DialogHeader>
-          <DialogTitle className="text-lg md:text-xl">{vehicle ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
+          <DialogTitle className="text-lg md:text-xl">{vehicle ? 'Edit Vehicle' : 'Add New Vehicle'}</ DialogTitle>
           <DialogDescription className="text-xs md:text-sm">
             {vehicle ? 'Update vehicle details' : 'Enter the details of the new vehicle'}
           </DialogDescription>
@@ -80,12 +80,12 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs md:text-sm font-medium">Title</label>
+              <label className="text-xs md:text-sm font-medium">name</label>
               <Input
-                name="title"
-                value={formData.title}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
-                placeholder="Vehicle title"
+                placeholder="Vehicle name"
                 required
                 className="text-sm"
               />
@@ -128,16 +128,14 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs md:text-sm font-medium">Image URL</label>
-            <Input
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="https://..."
-              required
-              className="text-sm"
-            />
-          </div>
+              <label className="text-sm font-medium">Image URL</label>
+              <Input
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                placeholder="https://..."
+              />
+            </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

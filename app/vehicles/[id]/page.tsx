@@ -7,7 +7,8 @@ import { ProtectedLayout } from '@/components/protected-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Copy, Check } from 'lucide-react';
-import type { Vehicle } from '@/lib/auth';
+import { type Vehicle } from '@/lib/auth';
+import { vehicleAPI } from '@/lib/api';
 
 export default function VehicleDetailPage() {
   const params = useParams();
@@ -20,9 +21,12 @@ export default function VehicleDetailPage() {
   useEffect(() => {
     const loadVehicle = async () => {
       try {
-        const res = await fetch(`/api/vehicles/${id}`);
-        if (res.ok) {
-          setVehicle(await res.json());
+        const res = await vehicleAPI.getVehicle(id);
+        if (res) {
+          setVehicle(res.vehicle);
+          console.log('Vehicle data:', res);
+        } else {
+          setVehicle(null);
         }
       } catch (err) {
         console.error('Failed to load vehicle:', err);
@@ -41,8 +45,8 @@ export default function VehicleDetailPage() {
     
     if (navigator.share) {
       navigator.share({
-        title: `${vehicle.title} Location`,
-        text: `Check out the location of ${vehicle.title}`,
+        title: `${vehicle.name} Location`,
+        text: `Check out the location of ${vehicle.name}`,
         url: mapsUrl,
       });
     } else {
@@ -72,15 +76,15 @@ export default function VehicleDetailPage() {
   if (!vehicle) {
     return (
       <ProtectedLayout>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <Link href="/vehicles">
-            <Button variant="outline" className="gap-2 bg-transparent">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Vehicles
+            <Button variant="outline" className="gap-2 bg-transparent text-xs sm:text-sm h-8 sm:h-9">
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+              Back
             </Button>
           </Link>
           <Card>
-            <CardContent className="pt-6 text-center text-muted-foreground">
+            <CardContent className="pt-4 sm:pt-6 text-center text-xs sm:text-sm text-muted-foreground">
               Vehicle not found
             </CardContent>
           </Card>
@@ -89,29 +93,30 @@ export default function VehicleDetailPage() {
     );
   }
 
-  const [lat, lng] = vehicle.location.split(',');
-  const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+  // const [lat, lng] = vehicle.location.split(',');
+  // const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
 
   return (
     <ProtectedLayout>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3 sm:space-y-6">
         <Link href="/vehicles">
-          <Button variant="outline" className="gap-2 bg-transparent text-xs md:text-sm">
-            <ArrowLeft className="w-3 md:w-4 h-3 md:h-4" />
-            Back to Vehicles
+          <Button variant="outline" className="gap-2 bg-transparent text-xs sm:text-sm h-8 sm:h-9">
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Back to Vehicles</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
 
         {/* Main Vehicle Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
+          <div className="lg:col-span-2 space-y-3 sm:space-y-6">
             {/* Image */}
             <Card className="overflow-hidden">
               <div className="aspect-video bg-muted relative overflow-hidden">
                 {vehicle.image && (
                   <img
                     src={vehicle.image || "/placeholder.svg"}
-                    alt={vehicle.title}
+                    alt={vehicle.name}
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -120,54 +125,54 @@ export default function VehicleDetailPage() {
 
             {/* Details */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl md:text-3xl truncate">{vehicle.title}</CardTitle>
-                <CardDescription className="text-xs md:text-sm truncate">VIN: {vehicle.vin}</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-xl sm:text-2xl lg:text-3xl truncate">{vehicle.name}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm truncate">VIN: {vehicle.vin}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 md:space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                  <div className="bg-muted p-3 md:p-4 rounded-lg">
+              <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                  <div className="bg-muted p-2 sm:p-4 rounded-lg">
                     <p className="text-xs text-muted-foreground font-medium mb-1">Fuel Level</p>
-                    <p className="text-xl md:text-2xl font-bold">{vehicle.fuelLevel}%</p>
-                    <div className="mt-2 w-full bg-background rounded-full h-2">
+                    <p className="text-lg sm:text-2xl font-bold">{vehicle.fuelLevel}%</p>
+                    <div className="mt-2 w-full bg-background rounded-full h-1.5 sm:h-2">
                       <div
-                        className="bg-blue-500 h-2 rounded-full transition-all"
+                        className="bg-blue-500 h-1.5 sm:h-2 rounded-full transition-all"
                         style={{ width: `${vehicle.fuelLevel}%` }}
                       />
                     </div>
                   </div>
 
-                  <div className="bg-muted p-3 md:p-4 rounded-lg">
-                    <p className="text-xs text-muted-foreground font-medium mb-1">Engine Status</p>
-                    <p className={`text-xl md:text-2xl font-bold ${vehicle.engineStatus ? 'text-green-600' : 'text-gray-600'}`}>
-                      {vehicle.engineStatus ? 'Running' : 'Off'}
+                  <div className="bg-muted p-2 sm:p-4 rounded-lg">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Engine</p>
+                    <p className={`text-lg sm:text-2xl font-bold ${vehicle.engineStatus ? 'text-green-600' : 'text-gray-600'}`}>
+                      {vehicle.engineStatus ? 'On' : 'Off'}
                     </p>
                   </div>
 
-                  <div className="bg-muted p-3 md:p-4 rounded-lg col-span-1 sm:col-span-2 lg:col-span-1">
-                    <p className="text-xs text-muted-foreground font-medium mb-1">Last Update</p>
-                    <p className="text-xs md:text-sm font-semibold truncate">
+                  <div className="bg-muted p-2 sm:p-4 rounded-lg">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Update</p>
+                    <p className="text-xs sm:text-sm font-semibold truncate">
                       {new Date(vehicle.lastUpdate).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Address</p>
-                    <p className="text-sm md:text-base break-words">{vehicle.address}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-1">Address</p>
+                    <p className="text-xs sm:text-base">{vehicle.address}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Coordinates</p>
-                    <p className="text-xs md:text-base font-mono break-all">{vehicle.location}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-1">Coordinates</p>
+                    <p className="text-xs sm:text-base font-mono">{vehicle.location}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Expiry Time</p>
-                    <p className="text-xs md:text-base">
-                      {new Date(vehicle.expiryTime).toLocaleDateString()} at{' '}
-                      {new Date(vehicle.expiryTime).toLocaleTimeString()}
+                    <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-1">Expiry</p>
+                    <p className="text-xs sm:text-base">
+                      {new Date(vehicle.expiryTime).toLocaleDateString()} {' '}
+                      <span className="hidden sm:inline">{new Date(vehicle.expiryTime).toLocaleTimeString()}</span>
                     </p>
                   </div>
                 </div>
@@ -176,79 +181,83 @@ export default function VehicleDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-3 sm:space-y-6">
             {/* Location Card */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-                  <MapPin className="w-4 md:w-5 h-4 md:h-5 flex-shrink-0" />
-                  <span className="truncate">Location</span>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="hidden sm:inline">Location</span>
+                  <span className="sm:hidden">Map</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
-                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative">
+              <CardContent className="p-4 sm:p-6 space-y-2 sm:space-y-4">
+                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative max-h-60 sm:max-h-80">
                   <iframe
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     loading="lazy"
-                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDNV6oSu1NjrA-RxLz7IXFX_jn7OsX6Yjo&q=${lat},${lng}`}
+                    // src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDNV6oSu1NjrA-RxLz7IXFX_jn7OsX6Yjo&q=${lat},${lng}`}
                     title="Vehicle Location"
                   />
                 </div>
 
-                <div className="space-y-2 flex flex-col">
+                <div className="space-y-2">
                   <Button
                     onClick={handleShareLocation}
-                    className="w-full gap-2"
+                    className="w-full gap-2 text-xs sm:text-sm h-8 sm:h-9"
                     size="sm"
                   >
-                    <MapPin className="w-3 md:w-4 h-3 md:h-4" />
-                    <span className="text-xs md:text-sm">Share Location</span>
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Share Location</span>
+                    <span className="sm:hidden">Share</span>
                   </Button>
 
                   <Button
                     onClick={handleCopyLocation}
                     variant="outline"
-                    className="w-full gap-2 bg-transparent"
+                    className="w-full gap-2 bg-transparent text-xs sm:text-sm h-8 sm:h-9"
                     size="sm"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-3 md:w-4 h-3 md:h-4" />
-                        <span className="text-xs md:text-sm">Copied!</span>
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Copied!</span>
+                        <span className="sm:hidden">Copied</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3 md:w-4 h-3 md:h-4" />
-                        <span className="text-xs md:text-sm">Copy Maps Link</span>
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Copy Maps Link</span>
+                        <span className="sm:hidden">Copy</span>
                       </>
                     )}
                   </Button>
 
-                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+                  {/* <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
                     <Button
                       variant="outline"
-                      className="w-full gap-2 bg-transparent"
+                      className="w-full gap-2 bg-transparent text-xs sm:text-sm h-8 sm:h-9"
                       size="sm"
                       asChild
                     >
-                      <span className="text-xs md:text-sm">Open in Maps</span>
+                      <span>Open in Maps</span>
                     </Button>
-                  </a>
+                  </a> */}
                 </div>
               </CardContent>
             </Card>
 
             {/* Quick Info */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg md:text-xl">Quick Info</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Quick Info</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
-                <div className="flex justify-between items-center pb-3 border-b gap-2">
-                  <span className="text-xs md:text-sm text-muted-foreground">Status</span>
-                  <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+              <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="flex justify-between items-center pb-2 sm:pb-3 border-b text-xs sm:text-sm">
+                  <span className="text-muted-foreground">Status</span>
+                  <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
                     vehicle.engineStatus
                       ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                       : 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
@@ -256,13 +265,13 @@ export default function VehicleDetailPage() {
                     {vehicle.engineStatus ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pb-3 border-b gap-2">
-                  <span className="text-xs md:text-sm text-muted-foreground">Fuel Range</span>
-                  <span className="font-semibold text-xs md:text-sm">{Math.round(vehicle.fuelLevel * 3)} km</span>
+                <div className="flex justify-between items-center pb-2 sm:pb-3 border-b text-xs sm:text-sm">
+                  <span className="text-muted-foreground">Fuel Range</span>
+                  <span className="font-semibold">{Math.round(vehicle.fuelLevel * 3)} km</span>
                 </div>
-                <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs md:text-sm text-muted-foreground">Next Service</span>
-                  <span className="font-semibold text-xs md:text-sm">
+                <div className="flex justify-between items-center text-xs sm:text-sm">
+                  <span className="text-muted-foreground">Next Service</span>
+                  <span className="font-semibold">
                     {Math.ceil((new Date(vehicle.expiryTime).getTime() - Date.now()) / (24 * 60 * 60 * 1000))} days
                   </span>
                 </div>

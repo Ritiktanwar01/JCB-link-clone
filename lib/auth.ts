@@ -13,36 +13,36 @@ export const mockUsers = [
 // Mock vehicles data
 export const mockVehicles = [
   {
-    id: '1',
+    _id: '1',
     vin: 'WBADT43452G730905',
     address: '123 Fleet St, New York, NY',
     expiryTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     image: '/vehicle1.jpg',
-    title: 'BMW 5 Series',
+    name: 'BMW 5 Series',
     fuelLevel: 75,
     engineStatus: true,
     lastUpdate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     location: '40.7128,-74.0060',
   },
   {
-    id: '2',
+    _id: '2',
     vin: '2HGEJ6A35DH520876',
     address: '456 Auto Ave, Los Angeles, CA',
     expiryTime: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
     image: '/vehicle2.jpg',
-    title: 'Honda Civic',
+    name: 'Honda Civic',
     fuelLevel: 45,
     engineStatus: true,
     lastUpdate: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     location: '34.0522,-118.2437',
   },
   {
-    id: '3',
+    _id: '3',
     vin: '5TDJKRFH8LS123456',
     address: '789 Drive Way, Chicago, IL',
     expiryTime: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
     image: '/vehicle3.jpg',
-    title: 'Toyota Highlander',
+    name: 'Toyota Highlander',
     fuelLevel: 85,
     engineStatus: false,
     lastUpdate: new Date().toISOString(),
@@ -88,22 +88,22 @@ export function getAllVehicles(): Vehicle[] {
 
 // Get vehicle by ID
 export function getVehicleById(id: string): Vehicle | undefined {
-  return mockVehicles.find(v => v.id === id);
+  return mockVehicles.find(v => v._id === id);
 }
 
 // Create vehicle
 export function createVehicle(vehicle: Omit<Vehicle, 'id'>): Vehicle {
   const newVehicle: Vehicle = {
     ...vehicle,
-    id: String(Math.max(...mockVehicles.map(v => parseInt(v.id))) + 1),
+    _id: String(Math.max(...mockVehicles.map(v => parseInt(v._id))) + 1),
   };
   mockVehicles.push(newVehicle);
   return newVehicle;
 }
 
 // Update vehicle
-export function updateVehicle(id: string, updates: Partial<Vehicle>): Vehicle | undefined {
-  const index = mockVehicles.findIndex(v => v.id === id);
+export function updateVehicle(_id: string, updates: Partial<Vehicle>): Vehicle | undefined {
+  const index = mockVehicles.findIndex(v => v._id === _id);
   if (index === -1) return undefined;
   mockVehicles[index] = { ...mockVehicles[index], ...updates };
   return mockVehicles[index];
@@ -111,7 +111,7 @@ export function updateVehicle(id: string, updates: Partial<Vehicle>): Vehicle | 
 
 // Delete vehicle
 export function deleteVehicle(id: string): boolean {
-  const index = mockVehicles.findIndex(v => v.id === id);
+  const index = mockVehicles.findIndex(v => v._id === id);
   if (index === -1) return false;
   mockVehicles.splice(index, 1);
   return true;

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ProtectedLayout } from '@/components/protected-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getSession } from '@/lib/session';
+import { vehicleAPI, authAPI } from '@/lib/api';
 import type { Vehicle } from '@/lib/auth';
 
 interface Session {
@@ -19,19 +19,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const load = async () => {
-      const sess = await getSession();
-      if (sess) {
-        setSession(sess);
-        try {
-          const res = await fetch('/api/vehicles');
-          if (res.ok) {
-            setVehicles(await res.json());
-          }
-        } catch (err) {
-          console.error('Failed to fetch vehicles:', err);
-        }
+      try {
+        const userData = await authAPI.verifyToken();
+        setSession(userData.user);
+        const vehiclesData = await vehicleAPI.getVehicles();
+        setVehicles(vehiclesData.vehicles || []);
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     load();
   }, []);
@@ -74,23 +71,23 @@ export default function DashboardPage() {
 
   return (
     <ProtectedLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome, {session?.name}</h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">Here's an overview of your vehicle fleet</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Welcome, {session?.name}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">Here's an overview of your vehicle fleet</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           {stats.map((stat, index) => (
-            <Card key={index} className="bg-card hover:bg-card/80 transition-colors">
-              <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-                <CardTitle className="text-xs font-medium text-muted-foreground truncate">
+            <Card key={index} className="p-3 sm:p-6">
+              <CardHeader className="pb-2 sm:pb-3 p-0">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground line-clamp-1">
                   {stat.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-3 md:p-4 pt-0">
-                <div className="text-lg md:text-2xl font-bold text-foreground">{stat.value}</div>
+              <CardContent className="p-0">
+                <div className="text-lg sm:text-2xl font-bold text-foreground">{stat.value}</div>
                 <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
               </CardContent>
             </Card>
@@ -99,27 +96,27 @@ export default function DashboardPage() {
 
         {/* Recent Vehicles */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">Recent Vehicles</CardTitle>
-            <CardDescription className="text-xs md:text-sm">Latest updates from your fleet</CardDescription>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Recent Vehicles</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Latest updates from your fleet</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6">
             {vehicles.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No vehicles in fleet</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">No vehicles in fleet</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-4">
                 {vehicles.slice(0, 3).map((vehicle) => (
-                  <div key={vehicle.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div key={vehicle._id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground text-sm truncate">{vehicle.title}</h3>
+                      <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{vehicle.name}</h3>
                       <p className="text-xs text-muted-foreground truncate">VIN: {vehicle.vin}</p>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 flex-wrap">
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-foreground">{vehicle.fuelLevel}%</p>
+                        <p className="text-xs sm:text-sm font-medium text-foreground">{vehicle.fuelLevel}%</p>
                         <p className="text-xs text-muted-foreground">Fuel</p>
                       </div>
-                      <div className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         vehicle.engineStatus
                           ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                           : 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
