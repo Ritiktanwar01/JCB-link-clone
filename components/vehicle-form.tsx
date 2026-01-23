@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { Vehicle } from '@/lib/auth';
-import { getImageUrl } from '@/lib/utils';
 
 interface VehicleFormProps {
   open: boolean;
@@ -24,7 +23,7 @@ interface VehicleFormProps {
 }
 
 export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFormProps) {
-  console.log("VehicleForm vehicle:", vehicle?._id);
+
   const [formData, setFormData] = useState({
     vin: vehicle?.vin || '',
     address: vehicle?.address || '',
@@ -47,7 +46,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
       fuelLevel: vehicle?.fuelLevel || 50,
       engineStatus: vehicle?.engineStatus || false,
       location: vehicle?.location || '',
-      image: vehicle?.image ? getImageUrl(vehicle.image) : '',
+      image: vehicle?.image ? `${process.env.NEXT_PUBLIC_API_URL}${vehicle.image}` : '',
     });
   }, [vehicle]);
 
@@ -78,7 +77,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
 
       if (response.ok) {
         const data = await response.json();
-        const fullImageUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${data.url}`;
+        const fullImageUrl = `${process.env.NEXT_PUBLIC_API_URL}${data.url}`;
         setFormData(prev => ({ ...prev, image: fullImageUrl }));
         toast({
           title: "Upload Successful",
@@ -111,7 +110,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
       };
 
       // If editing and image hasn't changed from original, don't include it
-      if (vehicle && formData.image === getImageUrl(vehicle.image)) {
+      if (vehicle && formData.image === `${process.env.NEXT_PUBLIC_API_URL}${vehicle.image}`) {
         delete submitData.image;
       }
 

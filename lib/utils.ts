@@ -14,8 +14,12 @@ export function getImageUrl(image: string): string {
   // If it's already an absolute URL with protocol, return as-is
   if (/^https?:\/\//i.test(image)) return image;
 
-  // Normalize backend base URL: only strip trailing '/api' if present
-  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').trim();
+  // Normalize backend base URL: fix malformed protocol slashes, strip trailing '/api'
+  let apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').trim();
+  // Ensure protocol has two slashes (e.g. convert 'https:/.example' -> 'https://.example')
+  apiUrl = apiUrl.replace(/^(https?:)\/+/, '$1//');
+  // Remove any accidental dot immediately after '//' (e.g. 'https://.example' -> 'https://example')
+  apiUrl = apiUrl.replace(/:\/\/\.+/, '://');
   const baseUrl = apiUrl.replace(/\/api\/?$/i, '').replace(/\/$/, '');
 
   // Remove accidental leading dots (e.g. ".example.com/...") and whitespace
