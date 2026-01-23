@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.jcb-digital.in';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.jcb-digital.in/api';
 
 export const getAuthToken = () => {
   if (typeof window !== 'undefined') {
