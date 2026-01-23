@@ -125,7 +125,7 @@ export default function VehiclesPage() {
                 <div className="aspect-video bg-muted relative overflow-hidden">
                   {vehicle.image && (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${vehicle.image}`}
+                      src={`${vehicle.image}`}
                       alt={vehicle.name}
                       className="w-full h-full object-cover"
                     />

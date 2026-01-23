@@ -46,7 +46,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
       fuelLevel: vehicle?.fuelLevel || 50,
       engineStatus: vehicle?.engineStatus || false,
       location: vehicle?.location || '',
-      image: vehicle?.image ? `${process.env.NEXT_PUBLIC_API_URL}${vehicle.image}` : '',
+      image: vehicle?.image ? `$${vehicle.image}` : '',
     });
   }, [vehicle]);
 
@@ -110,7 +110,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
       };
 
       // If editing and image hasn't changed from original, don't include it
-      if (vehicle && formData.image === `${process.env.NEXT_PUBLIC_API_URL}${vehicle.image}`) {
+      if (vehicle && formData.image === `${vehicle.image}`) {
         delete submitData.image;
       }
 
