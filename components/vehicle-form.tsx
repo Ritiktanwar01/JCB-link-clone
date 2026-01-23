@@ -77,7 +77,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
 
       if (response.ok) {
         const data = await response.json();
-        const fullImageUrl = `${process.env.NEXT_PUBLIC_API_URL}${data.url}`;
+        const fullImageUrl = `https://api.jcb-digital.in/uploads${data.url}`;
         setFormData(prev => ({ ...prev, image: fullImageUrl }));
         toast({
           title: "Upload Successful",
