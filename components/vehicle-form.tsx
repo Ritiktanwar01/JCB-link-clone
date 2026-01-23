@@ -2,9 +2,10 @@
 
 import React from "react"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { Vehicle } from '@/lib/auth';
+import { getImageUrl } from '@/lib/utils';
 
 interface VehicleFormProps {
   open: boolean;
@@ -22,6 +24,7 @@ interface VehicleFormProps {
 }
 
 export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFormProps) {
+  console.log("VehicleForm vehicle:", vehicle?._id);
   const [formData, setFormData] = useState({
     vin: vehicle?.vin || '',
     address: vehicle?.address || '',
@@ -33,6 +36,20 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     image: vehicle?.image || '',
   });
   const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    setFormData({
+      vin: vehicle?.vin || '',
+      address: vehicle?.address || '',
+      expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
+      name: vehicle?.name || '',
+      fuelLevel: vehicle?.fuelLevel || 50,
+      engineStatus: vehicle?.engineStatus || false,
+      location: vehicle?.location || '',
+      image: vehicle?.image ? getImageUrl(vehicle.image) : '',
+    });
+  }, [vehicle]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -42,27 +59,64 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     }));
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: formDataUpload,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const fullImageUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${data.url}`;
+        setFormData(prev => ({ ...prev, image: fullImageUrl }));
+        toast({
+          title: "Upload Successful",
+          description: "File has been uploaded successfully.",
+        });
+      } else {
+        throw new Error("Failed to upload file");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSubmit({
+      let submitData: any = {
         ...formData,
         expiryTime: new Date(formData.expiryTime).toISOString(),
         fuelLevel: parseInt(formData.fuelLevel.toString()),
         lastUpdate: new Date().toISOString(),
-      });
+      };
+
+      // If editing and image hasn't changed from original, don't include it
+      if (vehicle && formData.image === getImageUrl(vehicle.image)) {
+        delete submitData.image;
+      }
+
+      await onSubmit(submitData);
       onOpenChange(false);
-      // setFormData({
-      //   vin: '',
-      //   address: '',
-      //   expiryTime: '',
-      //   name: '',
-      //   fuelLevel: 50,
-      //   engineStatus: false,
-      //   location: '',
-      //   image: '',
-      // });
     } finally {
       setLoading(false);
     }
@@ -72,7 +126,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-full sm:max-w-md md:max-w-lg px-4 sm:px-6">
         <DialogHeader>
-          <DialogTitle className="text-lg md:text-xl">{vehicle ? 'Edit Vehicle' : 'Add New Vehicle'}</ DialogTitle>
+          <DialogTitle className="text-lg md:text-xl">{vehicle ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
           <DialogDescription className="text-xs md:text-sm">
             {vehicle ? 'Update vehicle details' : 'Enter the details of the new vehicle'}
           </DialogDescription>
@@ -128,14 +182,32 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
           </div>
 
           <div className="space-y-2">
-              <label className="text-sm font-medium">Image URL</label>
-              <Input
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://..."
-              />
-            </div>
+            <label className="text-sm font-medium">Image</label>
+            {formData.image && (
+              <div className="mb-2">
+                <img
+                  src={formData.image}
+                  alt="Vehicle preview"
+                  className="w-32 h-32 object-cover rounded-md border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            <Input
+              name="imageFile"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={isUploading}
+              className="text-sm"
+            />
+            {isUploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+            {formData.image && !isUploading && (
+              <p className="text-sm text-muted-foreground">Current image will be replaced when you upload a new one</p>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

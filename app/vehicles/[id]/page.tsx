@@ -7,8 +7,17 @@ import { ProtectedLayout } from '@/components/protected-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Copy, Check } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type Vehicle } from '@/lib/auth';
 import { vehicleAPI } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils';
 
 export default function VehicleDetailPage() {
   const params = useParams();
@@ -17,6 +26,10 @@ export default function VehicleDetailPage() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareDuration, setShareDuration] = useState('2');
+  const [shareUrl, setShareUrl] = useState('');
+  const [generatingLink, setGeneratingLink] = useState(false);
 
   useEffect(() => {
     const loadVehicle = async () => {
@@ -38,19 +51,40 @@ export default function VehicleDetailPage() {
   }, [id]);
 
   const handleShareLocation = () => {
-    if (!vehicle?.location) return;
-    
-    const [lat, lng] = vehicle.location.split(',');
-    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: `${vehicle.name} Location`,
-        text: `Check out the location of ${vehicle.name}`,
-        url: mapsUrl,
+    setShareDialogOpen(true);
+  };
+
+  const handleGenerateShareLink = async () => {
+    if (!vehicle) return;
+
+    setGeneratingLink(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vehicles/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify({
+          vehicleId: vehicle._id,
+          duration: shareDuration,
+        }),
       });
-    } else {
-      window.open(mapsUrl, '_blank');
+
+      if (response.ok) {
+        const data = await response.json();
+        setShareUrl(data.shareUrl);
+        // Copy to clipboard automatically
+        navigator.clipboard.writeText(data.shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        throw new Error('Failed to generate share link');
+      }
+    } catch (error) {
+      console.error('Error generating share link:', error);
+    } finally {
+      setGeneratingLink(false);
     }
   };
 
@@ -115,7 +149,7 @@ export default function VehicleDetailPage() {
               <div className="aspect-video bg-muted relative overflow-hidden">
                 {vehicle.image && (
                   <img
-                    src={vehicle.image || "/placeholder.svg"}
+                    src={getImageUrl(vehicle.image)}
                     alt={vehicle.name}
                     className="w-full h-full object-cover"
                   />
@@ -279,6 +313,63 @@ export default function VehicleDetailPage() {
             </Card>
           </div>
         </div>
+
+        {/* Share Location Dialog */}
+        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Share Vehicle Location</DialogTitle>
+              <DialogDescription>
+                Generate a shareable link for this vehicle's location. Choose how long the link should remain active.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Link Duration</label>
+                <Select value={shareDuration} onValueChange={setShareDuration}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 hour</SelectItem>
+                    <SelectItem value="2">2 hours</SelectItem>
+                    <SelectItem value="6">6 hours</SelectItem>
+                    <SelectItem value="12">12 hours</SelectItem>
+                    <SelectItem value="24">24 hours</SelectItem>
+                    <SelectItem value="48">48 hours</SelectItem>
+                    <SelectItem value="72">72 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {shareUrl && (
+                <div className="p-3 bg-muted rounded-md">
+                  <p className="text-sm font-medium mb-1">Share Link Generated:</p>
+                  <p className="text-xs text-muted-foreground break-all">{shareUrl}</p>
+                  <p className="text-xs text-green-600 mt-1">
+                    {copied ? '✓ Link copied to clipboard!' : 'Link copied to clipboard'}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShareDialogOpen(false)}
+                  disabled={generatingLink}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleGenerateShareLink}
+                  disabled={generatingLink}
+                >
+                  {generatingLink ? 'Generating...' : shareUrl ? 'Generate New Link' : 'Generate Link'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedLayout>
   );
