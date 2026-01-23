@@ -149,7 +149,7 @@ export default function VehicleDetailPage() {
               <div className="aspect-video bg-muted relative overflow-hidden">
                 {vehicle.image && (
                   <img
-                    src={getImageUrl(vehicle.image)}
+                    src={vehicle.image}
                     alt={vehicle.name}
                     className="w-full h-full object-cover"
                   />

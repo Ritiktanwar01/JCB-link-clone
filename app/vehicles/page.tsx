@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
 import { vehicleAPI } from '@/lib/api';
 import type { Vehicle } from '@/lib/auth';
-import { getImageUrl } from '@/lib/utils';
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -126,7 +125,7 @@ export default function VehiclesPage() {
                 <div className="aspect-video bg-muted relative overflow-hidden">
                   {vehicle.image && (
                     <img
-                      src={getImageUrl(vehicle.image)}
+                      src={vehicle.image}
                       alt={vehicle.name}
                       className="w-full h-full object-cover"
                     />
