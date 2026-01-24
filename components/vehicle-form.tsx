@@ -98,17 +98,71 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     }
   };
 
-  const handleGetLocation = () => {
+  const handleGetLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          setFormData(prev => ({ ...prev, location: `${lat},${lng}` }));
-          toast({
-            title: "Location Retrieved",
-            description: `Location set to ${lat}, ${lng}`,
-          });
+          
+          try {
+            // Call Nominatim API to get address
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // Construct address from the response
+              let address = '';
+              if (data.address) {
+                const addr = data.address;
+                const parts = [];
+                
+                if (addr.house_number) parts.push(addr.house_number);
+                if (addr.road) parts.push(addr.road);
+                if (addr.neighbourhood) parts.push(addr.neighbourhood);
+                if (addr.suburb) parts.push(addr.suburb);
+                if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village);
+                if (addr.county) parts.push(addr.county);
+                if (addr.state_district) parts.push(addr.state_district);
+                if (addr.state) parts.push(addr.state);
+                if (addr.postcode) parts.push(addr.postcode);
+                if (addr.country) parts.push(addr.country);
+                
+                address = parts.join(', ');
+              } else if (data.display_name) {
+                address = data.display_name;
+              }
+              
+              setFormData(prev => ({ 
+                ...prev, 
+                location: `${lat},${lng}`,
+                address: address || `${lat}, ${lng}`
+              }));
+              
+              toast({
+                title: "Location Retrieved",
+                description: address ? `Address: ${address}` : `Location set to ${lat}, ${lng}`,
+              });
+            } else {
+              // Fallback to just coordinates if API fails
+              setFormData(prev => ({ ...prev, location: `${lat},${lng}` }));
+              toast({
+                title: "Location Retrieved",
+                description: `Location set to ${lat}, ${lng}`,
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching address:', error);
+            // Fallback to just coordinates
+            setFormData(prev => ({ ...prev, location: `${lat},${lng}` }));
+            toast({
+              title: "Location Retrieved",
+              description: `Location set to ${lat}, ${lng}`,
+            });
+          }
         },
         (error) => {
           toast({
