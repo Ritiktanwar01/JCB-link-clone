@@ -98,6 +98,35 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     }
   };
 
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setFormData(prev => ({ ...prev, location: `${lat},${lng}` }));
+          toast({
+            title: "Location Retrieved",
+            description: `Location set to ${lat}, ${lng}`,
+          });
+        },
+        (error) => {
+          toast({
+            title: "Location Error",
+            description: "Unable to retrieve your location.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser does not support geolocation.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -170,14 +199,9 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
 
           <div className="space-y-2">
             <label className="text-xs md:text-sm font-medium">Location (lat,lng)</label>
-            <Input
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="40.7128,-74.0060"
-              required
-              className="text-sm"
-            />
+            <Button type="button" onClick={handleGetLocation} disabled={loading} className="w-full text-sm">
+              {formData.location || 'Get Current Location'}
+            </Button>
           </div>
 
           <div className="space-y-2">
