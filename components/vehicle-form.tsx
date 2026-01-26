@@ -27,7 +27,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
   const [formData, setFormData] = useState({
     vin: vehicle?.vin || '',
     address: vehicle?.address || '',
-    expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
+    // expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
     name: vehicle?.name || '',
     fuelLevel: vehicle?.fuelLevel || 50,
     engineStatus: vehicle?.engineStatus || false,
@@ -41,7 +41,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     setFormData({
       vin: vehicle?.vin || '',
       address: vehicle?.address || '',
-      expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
+      // expiryTime: vehicle?.expiryTime ? new Date(vehicle.expiryTime).toISOString().slice(0, 16) : '',
       name: vehicle?.name || '',
       fuelLevel: vehicle?.fuelLevel || 50,
       engineStatus: vehicle?.engineStatus || false,
@@ -187,7 +187,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
     try {
       let submitData: any = {
         ...formData,
-        expiryTime: new Date(formData.expiryTime).toISOString(),
+        // expiryTime: new Date(formData.expiryTime).toISOString(),
         fuelLevel: parseInt(formData.fuelLevel.toString()),
         lastUpdate: new Date().toISOString(),
       };
@@ -300,7 +300,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
                 className="text-sm"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="text-xs md:text-sm font-medium">Expiry Time</label>
               <Input
                 name="expiryTime"
@@ -310,7 +310,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
                 required
                 className="text-sm"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center space-x-2">
