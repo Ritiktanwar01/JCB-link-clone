@@ -289,7 +289,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
             {formData.image && (
               <div className="mb-2">
                 <img
-                  src={formData.image}
+                  src={'https://api.jcb-digital.in/uploads/vehicle-1769766870671-45496498.jpg'}
                   alt="Vehicle preview"
                   className="w-32 h-32 object-cover rounded-md border"
                   onError={(e) => {

@@ -125,7 +125,7 @@ export default function VehiclesPage() {
                 <div className="aspect-video bg-muted relative overflow-hidden">
                   {vehicle.image && (
                     <img
-                      src={`${vehicle.image}`}
+                      src={`https://api.jcb-digital.in/uploads/vehicle-1769766870671-45496498.jpg`}
                       alt={vehicle.name}
                       className="w-full h-full object-cover"
                     />

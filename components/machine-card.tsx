@@ -26,7 +26,7 @@ export default function MachineCard({ vehicle }: { vehicle: Vehicle }) {
       <div className="flex gap-4">
         {/* Machine Image - Yellow Circle with Excavator */}
         <div className="w-20 h-20 bg-white rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-yellow-500">
-          <img src={vehicle.image} alt={vehicle.name} />
+          <img src={'https://api.jcb-digital.in/uploads/vehicle-1769766870671-45496498.jpg'} alt={vehicle.name} />
         </div>
 
         {/* Machine Info */}
