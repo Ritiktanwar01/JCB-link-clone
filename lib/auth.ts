@@ -23,6 +23,7 @@ export const mockVehicles = [
     engineStatus: true,
     lastUpdate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     location: '40.7128,-74.0060',
+    workingHours: 4.8
   },
   {
     _id: '2',
@@ -35,6 +36,7 @@ export const mockVehicles = [
     engineStatus: true,
     lastUpdate: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     location: '34.0522,-118.2437',
+    workingHours: 4.8
   },
   {
     _id: '3',
@@ -47,6 +49,7 @@ export const mockVehicles = [
     engineStatus: false,
     lastUpdate: new Date().toISOString(),
     location: '41.8781,-87.6298',
+    workingHours: 4.8
   },
 ];
 
