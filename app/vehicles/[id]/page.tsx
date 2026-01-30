@@ -17,7 +17,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type Vehicle } from '@/lib/auth';
 import { vehicleAPI } from '@/lib/api';
-import { getImageUrl } from '@/lib/utils';
+import { MapEmbed } from '@/components/Map';
 
 export default function VehicleDetailPage() {
   const params = useParams();
@@ -30,6 +30,10 @@ export default function VehicleDetailPage() {
   const [shareDuration, setShareDuration] = useState('2');
   const [shareUrl, setShareUrl] = useState('');
   const [generatingLink, setGeneratingLink] = useState(false);
+
+  const GotoAPP = () => {
+    window.location.href = 'https://jcb-digital.in/machine/' + vehicle?.vin;
+  }
 
   useEffect(() => {
     const loadVehicle = async () => {
@@ -227,13 +231,9 @@ export default function VehicleDetailPage() {
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-2 sm:space-y-4">
                 <div className="aspect-square bg-muted rounded-lg overflow-hidden relative max-h-60 sm:max-h-80">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    // src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDNV6oSu1NjrA-RxLz7IXFX_jn7OsX6Yjo&q=${lat},${lng}`}
-                    title="Vehicle Location"
+                  <MapEmbed
+                    lat={Number(vehicle.location.split(',')[0])}
+                    lng={Number(vehicle.location.split(',')[1])}
                   />
                 </div>
 
@@ -267,6 +267,15 @@ export default function VehicleDetailPage() {
                         <span className="sm:hidden">Copy</span>
                       </>
                     )}
+                  </Button>
+
+                  <Button
+                    onClick={GotoAPP}
+                    variant="outline"
+                    className="w-full gap-2 bg-transparent text-xs sm:text-sm h-8 sm:h-9"
+                    size="sm"
+                  >
+                    View App
                   </Button>
 
                   {/* <a href={mapsUrl} target="_blank" rel="noopener noreferrer">

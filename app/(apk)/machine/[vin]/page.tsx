@@ -10,6 +10,7 @@ import UtilizationChart from '@/components/utilization-chart';
 import VisualizationReports from '@/components/visualization-reports';
 import MachineStatus from '@/components/machine-status';
 import { apiCall } from '@/lib/api';
+import { MapEmbed } from '@/components/Map';
 
 interface Vehicle {
   _id: string;
@@ -31,6 +32,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const Back = () => {
+    window.location.href = 'https://jcb-digital.in/vehicles/' + vehicle?._id;
+  };
+
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
@@ -49,21 +54,7 @@ export default function Home() {
     }
   }, [vin]);
 
-  const MapEmbed = ({ lat, lng }: { lat: number; lng: number }) => {
-    const src = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
-
-    return (
-      <iframe
-        src={src}
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-      ></iframe>
-    );
-  };
+  
 
   if (loading) {
     return (
@@ -89,7 +80,7 @@ export default function Home() {
       <div className="max-w-md mx-auto bg-white shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-amber-400 px-4 py-3 flex items-center gap-4">
-          <button className="text-black hover:opacity-75">
+          <button className="text-black hover:opacity-75" onClick={Back}>
             <ArrowLeft size={28} />
           </button>
           <h1 className="text-black font-bold text-base">{vehicle.vin}</h1>
