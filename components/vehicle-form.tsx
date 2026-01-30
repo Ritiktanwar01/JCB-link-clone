@@ -47,7 +47,7 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
       fuelLevel: vehicle?.fuelLevel || 50,
       engineStatus: vehicle?.engineStatus || false,
       location: vehicle?.location || '',
-      image: vehicle?.image ? `$${vehicle.image}` : '',
+      image: vehicle?.image ? `${vehicle.image}` : '',
       workingHours: vehicle?.workingHours || '',
     });
   }, [vehicle]);
@@ -260,6 +260,18 @@ export function VehicleForm({ open, onOpenChange, vehicle, onSubmit }: VehicleFo
               value={formData.workingHours}
               onChange={handleChange}
               placeholder="Vehicle working hours"
+              required
+              className="text-sm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs md:text-sm font-medium">Lat,Long</label>
+            <Input
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="lat,long"
               required
               className="text-sm"
             />
