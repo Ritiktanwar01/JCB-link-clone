@@ -23,7 +23,7 @@ export default function MachineCard({ vehicle }: { vehicle: Vehicle }) {
 
   return (
     <Card className="m-4 p-4 bg-white rounded-xl shadow-sm border-0">
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-4">
         {/* Machine Image - Yellow Circle with Excavator */}
         <div className="w-20 h-20 bg-white rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-yellow-500">
           <img src={vehicle.image} alt={vehicle.name} />
@@ -34,13 +34,14 @@ export default function MachineCard({ vehicle }: { vehicle: Vehicle }) {
           <p className="text-xs text-gray-500 mb-1">Status as on {timeString} | {dateString}</p>
           <h3 className="font-extralight text-gray-800 mb-2 text-base">{vehicle.vin}</h3>
           <div className="flex gap-3 mb-4 text-sm w-full">
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="w-[30%] flex items-center gap-2 text-gray-700">
               <Clock3 size={12} />
               <div>
-                <p className=" text-gray-800 text-xs flex w-[40px]" >{vehicle.workingHours} Hrs</p>
+                <p className=" text-gray-800 text-xs flex w-[40px]" >{vehicle.workingHours}<span> Hrs</span>
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="w-[30%] flex items-center gap-2 text-gray-700">
               <Fuel size={12} className="text-green-500" />
               <div>
                 <p className=" text-gray-800 text-xs">{vehicle.fuelLevel}%</p>
@@ -58,12 +59,6 @@ export default function MachineCard({ vehicle }: { vehicle: Vehicle }) {
           </div>
         </div>
       </div>
-
-      {/* Stats Row */}
-
-
-      {/* Location */}
-
 
       {/* Action Icons */}
       <div className="flex gap-6 justify-center pt-4 border-t border-gray-200">
